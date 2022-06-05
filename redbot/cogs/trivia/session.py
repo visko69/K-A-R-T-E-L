@@ -61,6 +61,7 @@ class TriviaSession:
          - ``bot_plays`` (`bool`)
          - ``allow_override`` (`bool`)
          - ``payout_multiplier`` (`float`)
+         - ``ignore_special`` (`bool`)
     scores : `collections.Counter`
         A counter with the players as keys, and their scores as values. The
         players are of type `discord.Member`.
@@ -254,11 +255,16 @@ class TriviaSession:
             )
             if early_exit:
                 return False
-
+            trans_table = {ord(","): None, ord(";"): None, ord(":"): None, ord("'"): None}
             self._last_response = time.time()
             guess = message.content.lower()
             guess = normalize_smartquotes(guess)
+            if self.settings["ignore_special"]:
+                guess = guess.translate(trans_table)
+
             for answer in answers:
+                if self.settings["ignore_special"]:
+                    answer = answer.trandlate(trans_table)
                 if " " in answer and answer in guess:
                     # Exact matching, issue #331
                     return True

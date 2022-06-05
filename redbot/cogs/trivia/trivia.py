@@ -63,11 +63,12 @@ class Trivia(commands.Cog):
 
         self.config.register_guild(
             max_score=10,
-            timeout=120.0,
             delay=15.0,
+            timeout=120.0,
             bot_plays=False,
             reveal_answer=True,
             payout_multiplier=0.0,
+            ignore_special=False,
             allow_override=True,
             use_spoilers=False,
         )
@@ -109,6 +110,7 @@ class Trivia(commands.Cog):
                 "Points to win: {max_score}\n"
                 "Reveal answer on timeout: {reveal_answer}\n"
                 "Payout multiplier: {payout_multiplier}\n"
+                "Ignoring special characters: {ignore_special}\n"
                 "Allow lists to override settings: {allow_override}\n"
                 "Use Spoilers in answers: {use_spoilers}"
             ).format(**settings_dict),
@@ -149,6 +151,16 @@ class Trivia(commands.Cog):
                 "Done. Trivia sessions will now time out after {num} seconds of no responses."
             ).format(num=seconds)
         )
+
+    @triviaset.command(name="special")
+    async def triviaset_ignorespecial(self, ctx: commands.Context, enabled: bool):
+        """Allow/disallow ignoring special characters in answers."""
+        settings = self.conf.guild(ctx.guild)
+        await settings.ignore_special.set(enabled)
+        if enabled:
+            await ctx.send(_("Done. Trivia now ignores special characters in answers"))
+        else:
+            await ctx.send(_("Done. Trivia no longer ignores special characters in answers"))
 
     @triviaset.command(name="override")
     async def triviaset_allowoverride(self, ctx: commands.Context, enabled: bool):
